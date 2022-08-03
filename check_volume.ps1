@@ -75,7 +75,7 @@ switch ($outputType) {
 $processArray = processCheck -checkResult $volumeresult `
                              -warningThresh $warning `
                              -criticalThresh $critical `
-                             -returnMessage "$volumename $metric space is $volumeresult | '$volumename $metric Space'=$volumeresult$outputType;$warning;$critical"
+                             -returnMessage "$volumename $metric space is $volumeresult $outputType | '$volumename $metric Space'=$volumeresult$outputType;$warning;$critical"
 $exitcode = $processArray[1]
 $exitMessage = $processArray[2]
 

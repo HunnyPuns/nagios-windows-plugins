@@ -22,6 +22,7 @@ For the moment, I've settled on just creating Powershell plugins. I'll need a ba
 	- Read I/O
 	- Write I/O
 	- Ratio reads to writes
+- Volume
 	- Used
 		- MB/GB/TB/PB
 		- PCT
@@ -31,5 +32,3 @@ For the moment, I've settled on just creating Powershell plugins. I'll need a ba
 - User
 	- Count
 	- List
-
-

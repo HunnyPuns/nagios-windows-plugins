@@ -90,7 +90,7 @@ switch ($outputType) {
 $processArray = processCheck -checkResult $memoryresult `
                              -warningThresh $warning `
                              -criticalThresh $critical `
-                             -returnMessage "$metric memory is $memoryresult | '$metric Memory'=$memoryresult$outputType;$warning;$critical"
+                             -returnMessage "$metric memory is $memoryresult$outputType | '$metric Memory'=$memoryresult$outputType;$warning;$critical"
 $exitcode = $processArray[1]
 $exitMessage = $processArray[2]
 
