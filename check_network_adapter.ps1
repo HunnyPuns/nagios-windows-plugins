@@ -1,14 +1,14 @@
 ﻿[CmdletBinding(DefaultParameterSetName = 'checknetadapter')]
 param(
-    [Parameter(Mandatory=$true)][string]$netadaptername = 'Ethernet',
+    [Parameter(Mandatory=$false)][string]$netadaptername = ((Get-NetAdapter | where -Property Status -eq 'Up' | Select-Object -First 1 ).Name),
     
-    [Parameter(Mandatory=$true)][ValidateSet('inbound', 'outbound')][string]$direction,
+    [Parameter(Mandatory=$false)][ValidateSet('inbound', 'outbound')][string]$direction = 'outbound',
 
-    [Parameter(Mandatory=$true, ParameterSetName='metric')][ValidateSet('bits', 'bytes', 'PCKTS')][string]$metric,
+    [Parameter(Mandatory=$false, ParameterSetName='metric')][ValidateSet('bits', 'bytes', 'PCKTS')][string]$metric = 'bits',
     [Parameter(Mandatory=$false, ParameterSetName='metric')][ValidateSet('K', 'M', 'G', 'T')][string]$size = 'M',
     [Parameter(Mandatory=$false, ParameterSetName='metric')][ValidateSet('Received', 'Sent', 'RecPcktError', 'RecDrop', 'SentPcktError', 'SentDrop')][string]$PCKTS,
 
-    [parameter(Mandatory=$false)][switch]$sinceboot,
+    [parameter(Mandatory=$false)][switch]$sinceboot = $null,
     
     [Parameter(Mandatory=$false)][int]$warning = $null,
     [Parameter(Mandatory=$false)][int]$critical = $null
@@ -18,7 +18,7 @@ param(
 $exitMessage = "Nothing changed the status output!"
 $exitcode = 3
 
-if ( ($bits -eq '') -and ($bytes -eq '') -and ($PCKTS -eq '') ) {
+if ( (!$bits) -and (!$bytes) -and (!$PCKTS) ) {
     $exitMessage = "You must specify one of -bits, -bytes, or -PCKTS"
     $exitcode = 4
 }
@@ -56,14 +56,14 @@ function processCheck {
 }
 
 $adapterresult1 = Get-NetAdapterStatistics -Name $netadaptername
-[uint64]$netresult = 0
+[float]$netresult = 0
 
 if ($sinceboot -eq $True) {
 
     if ($direction -eq 'inbound') {
         switch ($metric) {
             'bits' {
-                $netresult = ($adapterresult1.ReceivedBytes * 8) / 1000
+                $netresult = ($adapterresult1.ReceivedBytes * 8)
             }
 
             'bytes' {
@@ -94,13 +94,13 @@ if ($sinceboot -eq $True) {
     }
 }
 else {
-#Sinceboot = $False. I.e. wait 2 seconds, and grab the net adapter statistics again. Grab the delta.
-    start-sleep 2
+#Sinceboot = $False. I.e. wait 1 second, and grab the net adapter statistics again. Grab the delta.
+    start-sleep 1
     $adapterresult2 = Get-NetAdapterStatistics -Name $netadaptername
     if ($direction -eq 'inbound') {
         switch ($metric) {
             'bits' {
-                $netresult = (($adapterresult2.ReceivedBytes - $adapterresult1.ReceivedBytes) * 8) / 1000
+                $netresult = (($adapterresult2.ReceivedBytes - $adapterresult1.ReceivedBytes) * 8)
             }
 
             'bytes' {
@@ -116,7 +116,7 @@ else {
     else {
         switch ($metric) {
             'bits' {
-                $netresult = (($adapterresult2.SentBytes - $adapterresult1.SentBytes) * 8) / 1000
+                $netresult = (($adapterresult2.SentBytes - $adapterresult1.SentBytes) * 8)
             }
 
             'bytes' {
@@ -135,19 +135,19 @@ if ($metric -ne 'PCKTS') {
 
     switch ($size) {
         'K' {
-            #Conversion to kilo is done in the previous section
+            $netresult = [math]::Round($netresult / 1000,2)
         }
 
         'M' {
-            $netresult = $netresult / 1000
+            $netresult = [math]::Round($netresult / 1000 / 1000,2)
         }
 
         'G' {
-            $netresult = $netresult / 1000 / 1000
+            $netresult = [math]::Round($netresult / 1000 / 1000 / 1000,2)
         }
 
         'T' {
-            $netresult = $netresult / 1000 / 1000 / 1000
+            $netresult = [math]::Round($netresult / 1000 / 1000 / 1000 / 1000,2)
         }
     }
 }

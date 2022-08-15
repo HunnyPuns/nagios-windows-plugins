@@ -1,7 +1,7 @@
 ﻿param(
-    [Parameter(Mandatory=$true)][string]$volumename = 'C:\',
-    [Parameter(Mandatory=$true)][ValidateSet('MB', 'GB', 'TB', 'PCT')][string]$outputType = 'PCT',
-    [parameter(Mandatory=$true)][ValidateSet('Used', 'Available')][string]$metric,
+    [Parameter(Mandatory=$false)][string]$volumename = 'C:\',
+    [Parameter(Mandatory=$false)][ValidateSet('MB', 'GB', 'TB', 'PCT')][string]$outputType = 'PCT',
+    [parameter(Mandatory=$false)][ValidateSet('Used', 'Available')][string]$metric = 'Used',
     
     [Parameter(Mandatory=$false)][int]$warning = $null,
     [Parameter(Mandatory=$false)][int]$critical = $null

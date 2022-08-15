@@ -1,9 +1,9 @@
 ﻿param (
-    [Parameter(Mandatory=$true)][ValidateSet('MB', 'GB', 'TB', 'PCT')][string]$outputType,
-    [Parameter(Mandatory=$true)][ValidateSet('Used', 'Available')][string]$metric,
+    [Parameter(Mandatory=$false)][ValidateSet('MB', 'GB', 'TB', 'PCT')][string]$outputType = 'MB',
+    [Parameter(Mandatory=$false)][ValidateSet('Used', 'Available')][string]$metric = 'Used',
     
-    [Parameter(Mandatory=$false)][int]$warning = -1,
-    [Parameter(Mandatory=$false)][int]$critical = -1
+    [Parameter(Mandatory=$false)][int]$warning = $null,
+    [Parameter(Mandatory=$false)][int]$critical = $null
 )
 
 $exitcode = 3
@@ -21,7 +21,7 @@ function processCheck {
     [array]$returnArray
 
     if ($metric -eq 'Used') {
-        if (($criticalThresh -eq -1) -and ($warningThresh -eq -1) ) {
+        if ((!$criticalThresh) -and (!$warningThresh) ) {
 
             $returnArray = @(0, "OK: $returnMessage")
         }

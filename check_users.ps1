@@ -1,6 +1,6 @@
 ﻿param(
-    [Parameter(Mandatory=$false)][int]$warning = -1,
-    [Parameter(Mandatory=$false)][int]$critical = -1
+    [Parameter(Mandatory=$false)][int]$warning = $null,
+    [Parameter(Mandatory=$false)][int]$critical = $null
 )
 
 
@@ -16,7 +16,7 @@ function processCheck {
     )
 
     [array]$returnArray
-    if (($criticalThresh -eq -1) -and ($warningThresh -eq -1) ) {
+    if ((!$criticalThresh) -and (!$warningThresh) ) {
 
         $returnArray = @(0, "OK: $returnMessage")
     }
@@ -38,4 +38,4 @@ function processCheck {
 }
 
 
-(((quser) -replace '^>', '') -replace '\s{2,}', ',' | ConvertFrom-Csv)
+(((quser) -replace '^>', '') -replace '\s{2,}', ',' | ConvertFrom-Csv).USERNAME
