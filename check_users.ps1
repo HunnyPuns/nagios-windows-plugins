@@ -1,4 +1,6 @@
 ﻿param(
+    [Parameter(Mandatory=$false)][ValidateSet('Count', 'List')][string]$metric = 'Count',
+
     [Parameter(Mandatory=$false)][int]$warning = $null,
     [Parameter(Mandatory=$false)][int]$critical = $null
 )
@@ -38,4 +40,28 @@ function processCheck {
 }
 
 
-(((quser) -replace '^>', '') -replace '\s{2,}', ',' | ConvertFrom-Csv).USERNAME
+$usersresult = (((quser) -replace '^>', '') -replace '\s{2,}', ',' | ConvertFrom-Csv).USERNAME
+$processArray = @()
+
+if ($metric -eq 'Count') {
+    $usersresult = $usersresult.Count
+
+    $processArray = processCheck -checkResult $usersresult `
+                             -warningThresh $warning `
+                             -criticalThresh $critical `
+                             -returnMessage "User $metric is $usersresult | 'User $metric'=$usersresult;$warning;$critical"
+}
+else {
+    #Removing performance data. Not sure that a list should show perf data. 
+    #Also setting warn/crit to $null.
+    #Also also setting checkresult here to 0, since there's nothing really to process.
+    $processArray = processCheck -checkResult 0 `
+                                 -warningThresh $null `
+                                 -criticalThresh $null `
+                                 -returnMessage "User $metric is $usersresult"
+}
+$exitcode = $processArray[1]
+$exitMessage = $processArray[2]
+
+write-host $exitMessage
+exit $exitcode
