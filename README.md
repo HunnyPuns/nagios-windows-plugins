@@ -3,10 +3,16 @@ This project is meant to be a call to the official Nagios Plugins Project. Not t
 
 In the end, I aim to have a set of plugins that can be executed over SSH or WinRM.
 
+# Things I Want To Add
+- CPU
+	- Top N Processes
+- Volume
+	- Check status of mounts
+- Disk
+	- Disk operation latency
+- Patch Status
 
-# The notes so far!
-
-For the moment, I've settled on just creating Powershell plugins. I'll need a basic set of plugins to get started. That will include:
+# The Plugins So Far
 - CPU
 	- Used PCT
 - Memory
@@ -21,7 +27,6 @@ For the moment, I've settled on just creating Powershell plugins. I'll need a ba
 - Disk
 	- Read I/O
 	- Write I/O
-	- Ratio reads to writes
 - Volume
 	- Used
 		- MB/GB/TB/PB
