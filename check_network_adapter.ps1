@@ -11,11 +11,11 @@ Like I say in the description. This one was a big one for me. Please please plea
 This can be a hard one. Might be something like "Ethernet" or "Ethernet Instance" or something like that. I've added some code here so that it defaults to the first interface that's marked as Up.
 .PARAMETER direciton
 Inbound or Outbound. I don't have a total for this plugin. Maybe that could be an enhancement?
-.PARAMETER metric
+.PARAMETER measurement
 bits, bytes, PCKTS. Do you want the data reported in bits, bytes, or packets?
 .PARAMETER size
 K, M, G, T. Do you want the size of the data to be reported in kilo, mega, giga, or tera?
-.PARAMETER PCKTS
+.PARAMETER metric
 Received, Sent, RecPcktError, RecDrop, SentPcktError, SentDrop. What metric do you want to report on?
 Received = total received
 Sent = total sent
@@ -31,19 +31,19 @@ The number you are willing to tolerate before throwing a WARNING
 .PARAMETER critical
 The numbery ou are willing to tolerate before throwing a CRITICAL
 .EXAMPLE
-PS> .\check_network_adapter.ps1 -metric bits -size K -PCKTS Received
+PS> .\check_network_adapter.ps1 -measurement bits -size K -metric Received
 .EXAMPLE
-PS> .\check_network_adapter.ps1 -metric bits -size K -PCKTS Received -warning 60 -critical 100
+PS> .\check_network_adapter.ps1 -measurement bits -size K -metric Received -warning 60 -critical 100
 #>
-﻿[CmdletBinding(DefaultParameterSetName = 'checknetadapter')]
+[CmdletBinding(DefaultParameterSetName = 'checknetadapter')]
 param(
-    [Parameter(Mandatory=$false)][string]$netadaptername = ((Get-NetAdapter | where -Property Status -eq 'Up' | Select-Object -First 1 ).Name),
+    [Parameter(Mandatory=$true)][string]$netadaptername = ((Get-NetAdapter | where -Property Status -eq 'Up' | Select-Object -First 1 ).Name),
 
-    [Parameter(Mandatory=$false)][ValidateSet('inbound', 'outbound')][string]$direction = 'outbound',
+    [Parameter(Mandatory=$true)][ValidateSet('inbound', 'outbound')][string]$direction = "outbound",
 
-    [Parameter(Mandatory=$false, ParameterSetName='metric')][ValidateSet('bits', 'bytes', 'PCKTS')][string]$metric = 'bits',
-    [Parameter(Mandatory=$false, ParameterSetName='metric')][ValidateSet('K', 'M', 'G', 'T')][string]$size = 'M',
-    [Parameter(Mandatory=$false, ParameterSetName='metric')][ValidateSet('Received', 'Sent', 'RecPcktError', 'RecDrop', 'SentPcktError', 'SentDrop')][string]$PCKTS,
+    [Parameter(Mandatory=$true, ParameterSetName='metric')][ValidateSet('bits', 'bytes', 'PCKTS')][string]$measurement = 'bits',
+    [Parameter(Mandatory=$true, ParameterSetName='metric')][ValidateSet('K', 'M', 'G', 'T')][string]$size = 'M',
+    [Parameter(Mandatory=$true, ParameterSetName='metric')][ValidateSet('Received', 'Sent', 'RecPcktError', 'RecDrop', 'SentPcktError', 'SentDrop')][string]$metric,
 
     [parameter(Mandatory=$false)][switch]$sinceboot = $null,
 
@@ -54,12 +54,6 @@ param(
 
 $exitMessage = "Nothing changed the status output!"
 $exitcode = 3
-
-if ( (!$bits) -and (!$bytes) -and (!$PCKTS) ) {
-    $exitMessage = "You must specify one of -bits, -bytes, or -PCKTS"
-    $exitcode = 4
-}
-
 
 function processCheck {
     param (
@@ -98,7 +92,7 @@ $adapterresult1 = Get-NetAdapterStatistics -Name $netadaptername
 if ($sinceboot -eq $True) {
 
     if ($direction -eq 'inbound') {
-        switch ($metric) {
+        switch ($measurement) {
             'bits' {
                 $netresult = ($adapterresult1.ReceivedBytes * 8)
             }
@@ -114,7 +108,7 @@ if ($sinceboot -eq $True) {
         }
     }
     else {
-        switch ($metric) {
+        switch ($measurement) {
             'bits' {
                 $netresult = ($adapterresult1.SentBytes * 8)
             }
@@ -135,7 +129,7 @@ else {
     start-sleep 1
     $adapterresult2 = Get-NetAdapterStatistics -Name $netadaptername
     if ($direction -eq 'inbound') {
-        switch ($metric) {
+        switch ($measurement) {
             'bits' {
                 $netresult = (($adapterresult2.ReceivedBytes - $adapterresult1.ReceivedBytes) * 8)
             }
@@ -151,7 +145,7 @@ else {
         }
     }
     else {
-        switch ($metric) {
+        switch ($measurement) {
             'bits' {
                 $netresult = (($adapterresult2.SentBytes - $adapterresult1.SentBytes) * 8)
             }
@@ -168,7 +162,7 @@ else {
     }
 }
 
-if ($metric -ne 'PCKTS') {
+if ($measurement -ne 'PCKTS') {
 
     switch ($size) {
         'K' {
@@ -192,7 +186,7 @@ if ($metric -ne 'PCKTS') {
 $processArray = processCheck -checkResult $netresult `
                              -warningThresh $warning `
                              -criticalThresh $critical `
-                             -returnMessage "$direction $size$metric is $netresult | '$direction $size$metric'=$netresult;$warning;$critical"
+                             -returnMessage "$direction $size$measurement is $netresult | '$direction $size$measurement'=$netresult;$warning;$critical"
 $exitcode = $processArray[1]
 $exitMessage = $processArray[2]
 
