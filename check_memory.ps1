@@ -59,7 +59,7 @@ function processCheck {
         }
     }
     else {
-        if (($criticalThresh -eq -1) -and ($warningThresh -eq -1) ) {
+        if ((!$criticalThresh) -and (!$warningThresh) ) {
 
             $returnArray = @(0, "OK: $returnMessage")
         }
