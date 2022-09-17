@@ -1,4 +1,19 @@
-﻿param (
+﻿<#
+.DESCRIPTION
+A PowerShell based plugin for Nagios and Nagios-like systems. This plugin checks the status of a specified service on Windows machines.
+.SYNOPSIS
+A PowerShell based plugin to check the status of a specified service on Windows machines
+.NOTES
+Yes, I firmly believe that the Print Spooler should be stopped unless you are monitoring a print server
+This plugin does not return performance data.
+.PARAMETER expectedstate
+The expected state of the service. I.e. running, or stopped.
+.PARAMETER servicename
+The name of the service you wish to check. Specifically the Service Name (e.g. Spooler), not the Display Name (e.g. Print Spooler)
+.EXAMPLE
+PS> .\check_service.ps1 -expectedstate Stopped -servicename Spooler
+#>
+param (
     [Parameter(Mandatory=$false)][ValidateSet('Running', 'Stopped')][string]$expectedstate = $null,
     [Parameter(Mandatory=$false)][string]$servicename
 )
