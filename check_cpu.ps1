@@ -17,7 +17,7 @@ PS> .\check_cpu.ps1
 .EXAMPLE
 PS> .\check_cpu.ps1 -warning 80 -critical 90
 #>
-﻿param(
+param(
     [Parameter(Mandatory=$false)][int]$warning = $null,
     [Parameter(Mandatory=$false)][int]$critical = $null
 )
