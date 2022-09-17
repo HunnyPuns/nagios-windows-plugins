@@ -17,7 +17,7 @@ outputType mainly affects the Memory metric. You can specify the output in KB, M
 The number you will tolerate before throwing a WARNING, be that for Count, Memory, or CPU
 .PARAMETER critical
 The number you will tolerate before throwing a CRITICAL, be that for Count, Memory, or CPU
-.EXAMPLE 
+.EXAMPLE
 PS> .\check_process.ps1 -processname iexplore
 .EXAMPLE
 PS> .\check_process.ps1 -processname iexplore -metric Memory -outputType MB -warning 400 -critical 500 (basically throw a critical if iexplore is running, lolololol)
@@ -88,13 +88,13 @@ switch ($metric) {
         }
 
         $message = "Process $processname memory utilization is $memtotal"
-        
+
         $processArray = processCheck -checkResult $memtotal `
                              -warningThresh $warning `
                              -criticalThresh $critical `
                              -returnMessage "Process $processname memory usage is $memtotal | '$processname memory'=$memtotal;$warning;$critical"
     }
-    
+
     'CPU' {
         foreach ($cpu in $procinfo.CPU) { $cputotal = $cputotal + $cpu }
         $cputotal = [math]::Round($cputotal,2)
