@@ -37,3 +37,13 @@ In the end, I aim to have a set of plugins that can be executed over SSH or WinR
 - User
 	- Count
 	- List
+- Process
+	- Count
+	- Memory
+	- CPU
+- Service
+	- Running/Stopped
+- Files
+	- Exists/ShouldNotExist
+	- Size
+	- Number of files
