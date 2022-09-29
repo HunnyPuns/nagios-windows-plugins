@@ -13,6 +13,36 @@ I've created check_by_winrm.py. This works, barely. It only uses basic authentic
 # Testing
 I would definitely appreciate any help with testing the plugins or the WinRM checker thingey. Feedback in the form of bug reports and/or pull requests is always appreciated! <3
 
+# Installation
+## Windows Side
+The Windows side of the configuration is going to be pretty easy. Create a directory where you want your plugins to live, and put the .ps1 scripts there. For the purposes of this walkthrough, let's call that directory `C:\Plugins`
+
+## Nagios Side
+The very first thing you'll want to do is put the check_by_winrm.py script in the directory where the rest of your Nagios plugins live. Usually `/usr/local/nagios/libexec/` . Make sure that the script is owned by nagios:nagios, and that it is chmod 754.
+
+#### Create A Command
+First we create a command in the command configuration file. Typically this is located at `/usr/local/nagios/etc/command.cfg` . We'll create a command for the `check_by_winrm.py` script, which is what will be doing the heavy lifting.
+
+```
+define command {
+	command_name	check-by-winrm
+	command_line	$USER1$/check_by_winrm.py -H $HOSTADDRESS$ -u $ARG1$ -p $ARG2$ -a $ARG3$ -P $ARG4$ -A $ARG5$
+}
+```
+
+#### Create A Service Check
+This is where things can take a turn, because people often have their own way of laying out their host and service configuration files. Let's create an example CPU usage check.
+
+```
+define service {
+	host_name		your-host
+	service_description	CPU Usage
+	use		generic_service
+	check_command	check-by-winrm!'administrator'!'Temp1234'!'basic'!'C:\Plugins\check_cpu.ps1'!'-warning 80 -critical 90'
+}
+```
+
+
 # Things I Want To Add
 - CPU
 	- Top N Processes
