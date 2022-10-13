@@ -17,6 +17,16 @@ I would definitely appreciate any help with testing the plugins or the WinRM che
 ## Windows Side
 The Windows side of the configuration is going to be pretty easy. Create a directory where you want your plugins to live, and put the .ps1 scripts there. For the purposes of this walkthrough, let's call that directory `C:\Plugins`
 
+### WinRM Configuration
+It strikes me that people are going to be eager to get something running over WinRM rightthefscknow. Okay, I am providing a way to do that. But please, please, please understand that what I am about to propose is *absolutely not secure* and I would never recommend it be done in a production environment, and I would actively fight against it being done on any internet-facing server.
+
+But for *testing purposes*, here's how we can configure WinRM, so we can execute Nagios plugins via WinRM.
+On your Windows system, in a Powershell terminal, run the following commands:
+`winrm set winrm/config/service @{Basic="true"}`
+`winrm set winrm/config/service/auth @{Basic="true"}`
+
+What have we done here? The transport is going to be basic HTTP, and the authentication is going to be plaintext. Technically it's base64 encoded, but for those not in the know, you run a password through a base64 encoder, you get the base64 string. You run a base64 string through a base64 encoder, you get the password. No tricks, no keys, no hashes, no gods, no masters. Please do not do this in production.
+
 ## Nagios Side
 The very first thing you'll want to do is put the check_by_winrm.py script in the directory where the rest of your Nagios plugins live. Usually `/usr/local/nagios/libexec/` . Make sure that the script is owned by nagios:nagios, and that it is chmod 754.
 
