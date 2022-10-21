@@ -27,6 +27,23 @@ On your Windows system, in a Powershell terminal, run the following commands:
 
 What have we done here? The transport is going to be basic HTTP, and the authentication is going to be plaintext. Technically it's base64 encoded, but for those not in the know, you run a password through a base64 encoder, you get the base64 string. You run a base64 string through a base64 encoder, you get the password. No tricks, no keys, no hashes, no gods, no masters. Please do not do this in production.
 
+### Update to WinRM Configuration 0.1.2-beta
+I've added the ability to use SSL in the transport, so you can now use basic auth over HTTPS. This adds a layer of security to basic authentication, so you're not just throwing your credentials around in plaintext, or effectively plaintext (base64, NTLM).
+
+You will need, at minimum, a self-signed certificate for this. This code was tested with a self-signed certificate, so I presume it works with a signed certificate. But that gets into trusting CA's and whatnottery, and working with certificates in Windows is a goddamned nightmare. So I'm going to leave that up to people who are used to working with CAs in Windows.
+
+The limitation here is that basic authentication, HTTP or HTTPS, only allows for local accounts to authenticate. No domain accounts. :(
+
+In any case. In the check_by_winrm.py script, for auth you can now specify 'basic-http' or 'basic-https'. These were the easiest options to add.
+
+I went to add NTLM for this release, because I figured there must be a few victims out there still using it, but Linux wouldn't let me. And you know what? Good on you, Linux. NTLM is what, like 30 years old at this point? MD4 died off decades ago, it's time to move on, Windows. In short, I'm not against putting NTLM auth in, if there's an easy way to do it that isn't intrusive to the user, but don't bet the farm on it.
+
+The next option is to look at certificate auth, which is different from HTTPS in that you are assigning certificate based logins. So a specific certificate == a specific user within Windows. I haven't looked into this auth type too deeply yet, but I presume this is what's used with like smart card authentication. This would allow for local and domain accounts.
+
+Another option is CREDSSP. CREDSSP looks like it allows for local and domain accounts, and allows "double hop authentication." ... ? Maybe like an SSH jump host or something? That does look interesting, and could be useful for proxy checks. But some Microsoft scripting sites suggest that CREDSSP isn't a good idea. So I'll want to look into this more before I just throw it out there, I guess.
+
+And finally there's Kerberos. I think people still use this. So I'll look into getting it added.
+
 ## Nagios Side
 The very first thing you'll want to do is put the check_by_winrm.py script in the directory where the rest of your Nagios plugins live. Usually `/usr/local/nagios/libexec/` . Make sure that the script is owned by nagios:nagios, and that it is chmod 754.
 

@@ -25,8 +25,8 @@ parser.add_argument( '-a',
                      '--auth',
                      required=True,
                      type=str,
-                     choices=['basic', 'cert', 'kerberos', 'credssp'],
-                     help='Authentication mechanism for the Windows system. Right now we can do basic. :|')
+                     choices=['basic-http', 'basic-https'],
+                     help='Authentication mechanism for the Windows system. Only supporting basic auth right now. More to come later. NTLM is out because it\'s fucking 30 years old.')
 parser.add_argument( '-P',
                      '--plugin',
                      required=True,
@@ -37,10 +37,29 @@ parser.add_argument( '-A',
                      required=False,
                      type=str,
                      help='Additional arguments for the specified plugin. (e.g. -outputtype GB -metric Used -warning 12 -critical 14)')
+parser.add_argument( '-k',
+                     '--insecure',
+                     required=False,
+                     action='store_const',
+                     const=1)
 
 args = parser.parse_args(argv[1:])
 
-winrmsession = winrm.Session(args.host, auth=(args.user, args.password))
+validation = ""
+transport = ""
+
+if (args.auth == 'basic-http'):
+    transport = 'basic'
+else:
+    transport = 'ssl'
+
+if (args.insecure is not None):
+    validation = 'ignore'
+else:
+    validation = 'validate'
+
+
+winrmsession = winrm.Session(args.host, auth=(args.user, args.password), transport=transport, server_cert_validation=validation)
 
 command = winrmsession.run_ps(args.plugin + ' ' + args.args)
 
