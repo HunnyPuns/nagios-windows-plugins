@@ -45,6 +45,7 @@ parser.add_argument( '-k',
 
 args = parser.parse_args(argv[1:])
 
+pscommand = ""
 validation = ""
 transport = ""
 
@@ -61,7 +62,12 @@ else:
 
 winrmsession = winrm.Session(args.host, auth=(args.user, args.password), transport=transport, server_cert_validation=validation)
 
-command = winrmsession.run_ps(args.plugin + ' ' + args.args)
+if (args.args is not None):
+    pscommand = args.plugin + ' ' + args.args
+else:
+    pscommand = args.plugin
+
+command = winrmsession.run_ps(pscommand)
 
 if (command.std_out != b''):
     print(command.std_out.decode('utf-8').rstrip('\n'))
