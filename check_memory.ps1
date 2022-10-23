@@ -97,10 +97,10 @@ switch ($outputType) {
             #Nothing goes here. MB is the default.
             }
     'GB' {
-            $memoryresult = $memoryresult / 1024
+            $memoryresult = [math]::Round(($memoryresult / 1024), 2)
             }
     'TB' {
-            $memoryresult = $memoryresult / 1024 / 1024
+            $memoryresult = [math]::Round(($memoryresult / 1024 / 1024), 2)
             }
     'PCT'{
             $memoryresult = [math]::Round(($memoryresult / $totalmem) * 100, 2)
