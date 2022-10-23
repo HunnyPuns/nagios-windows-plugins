@@ -96,6 +96,14 @@ switch ($outputType) {
             }
 }
 
+if ($volumename.Length -le 3) {
+    $volumename = $volumename.Substring(0,1)
+}
+else {
+    $volumename = $volumename.Substring(3, ($volumename.Length - 3))
+    $volumename = $volumename.Substring(0, ($volumename.Length - 1))
+}
+
 $processArray = processCheck -checkResult $volumeresult `
                              -warningThresh $warning `
                              -criticalThresh $critical `
