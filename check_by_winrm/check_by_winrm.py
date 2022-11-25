@@ -45,6 +45,8 @@ parser.add_argument( '-k',
 
 args = parser.parse_args(argv[1:])
 
+message = "Nothing changed the return message!"
+exitcode = 3
 pscommand = ""
 validation = ""
 transport = ""
@@ -70,7 +72,16 @@ else:
 command = winrmsession.run_ps(pscommand)
 
 if (command.std_out != b''):
-    print(command.std_out.decode('utf-8').rstrip('\n'))
-# what if standard out is empty?
+    message = command.std_out.decode('utf-8').rstrip('\n')
+    breakup = message.split(" ")
 
-exit(command.status_code)
+    match breakup[0]:
+        case 'OK:':
+            exitcode = 0
+        case 'WARNING:':
+            exitcode = 1
+        case 'CRITICAL:':
+            exitcode = 2
+
+print(message)
+exit(exitcode)
