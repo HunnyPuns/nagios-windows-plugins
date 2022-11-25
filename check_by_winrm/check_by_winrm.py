@@ -24,7 +24,7 @@ parser.add_argument( '-p',
 parser.add_argument( '-a',
                      '--auth',
                      required=True,
-                     type=str,
+                     type=str.lower,
                      choices=['basic-http', 'basic-https'],
                      help='Authentication mechanism for the Windows system. Only supporting basic auth right now. More to come later. NTLM is out because it\'s fucking 30 years old.')
 parser.add_argument( '-P',
