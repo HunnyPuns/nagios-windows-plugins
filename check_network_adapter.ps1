@@ -37,9 +37,7 @@ PS> .\check_network_adapter.ps1 -measurement bits -size K -metric Received -warn
 #>
 [CmdletBinding(DefaultParameterSetName = 'checknetadapter')]
 param(
-    [Parameter(Mandatory=$true)][string]$netadaptername = ((Get-NetAdapter | where -Property Status -eq 'Up' | Select-Object -First 1 ).Name),
-
-    [Parameter(Mandatory=$true)][ValidateSet('inbound', 'outbound')][string]$direction = "outbound",
+    [Parameter(Mandatory=$false)][string]$netadaptername = ((Get-NetAdapter | where -Property Status -eq 'Up' | Select-Object -First 1 ).Name),
 
     [Parameter(Mandatory=$true, ParameterSetName='metric')][ValidateSet('bits', 'bytes', 'PCKTS')][string]$measurement = 'bits',
     [Parameter(Mandatory=$true, ParameterSetName='metric')][ValidateSet('K', 'M', 'G', 'T')][string]$size = 'M',
@@ -90,8 +88,9 @@ $adapterresult1 = Get-NetAdapterStatistics -Name $netadaptername
 [float]$netresult = 0
 
 if ($sinceboot -eq $True) {
+    
+    if ($metric.StartsWith("Rec")) {
 
-    if ($direction -eq 'inbound') {
         switch ($measurement) {
             'bits' {
                 $netresult = ($adapterresult1.ReceivedBytes * 8)
@@ -104,8 +103,7 @@ if ($sinceboot -eq $True) {
             'PCKTS' {
                 $netresult = $adapterresult1.ReceivedUnicastPackets
             }
-
-        }
+       }
     }
     else {
         switch ($measurement) {
@@ -120,7 +118,6 @@ if ($sinceboot -eq $True) {
             'PCKTS' {
                 $netresult = $adapterresult1.SentUnicastPackets
             }
-
         }
     }
 }
@@ -128,7 +125,7 @@ else {
 #Sinceboot = $False. I.e. wait 1 second, and grab the net adapter statistics again. Grab the delta.
     start-sleep 1
     $adapterresult2 = Get-NetAdapterStatistics -Name $netadaptername
-    if ($direction -eq 'inbound') {
+    if ($metric.StartsWith("Rec")) {
         switch ($measurement) {
             'bits' {
                 $netresult = (($adapterresult2.ReceivedBytes - $adapterresult1.ReceivedBytes) * 8)
@@ -151,11 +148,11 @@ else {
             }
 
             'bytes' {
-                $netresult = ($adapterresult2 - $adapterresult1.SentBytes)
+                $netresult = ($adapterresult2.SentBytes - $adapterresult1.SentBytes)
             }
 
             'PCKTS' {
-                $netresult = ($adapterresult2 - $adapterresult1.SentUnicastPackets)
+                $netresult = ($adapterresult2.SentUnicastPackets - $adapterresult1.SentUnicastPackets)
             }
 
         }
@@ -186,7 +183,7 @@ if ($measurement -ne 'PCKTS') {
 $processArray = processCheck -checkResult $netresult `
                              -warningThresh $warning `
                              -criticalThresh $critical `
-                             -returnMessage "$direction $size$measurement is $netresult | '$direction $size$measurement'=$netresult;$warning;$critical"
+                             -returnMessage "$metric $size$measurement is $netresult | '$metric $size$measurement'=$netresult;$warning;$critical"
 $exitcode = $processArray[1]
 $exitMessage = $processArray[2]
 
