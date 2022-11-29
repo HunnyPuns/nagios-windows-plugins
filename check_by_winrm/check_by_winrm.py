@@ -75,13 +75,14 @@ if (command.std_out != b''):
     message = command.std_out.decode('utf-8').rstrip('\n')
     breakup = message.split(" ")
 
-    match breakup[0]:
-        case 'OK:':
-            exitcode = 0
-        case 'WARNING:':
-            exitcode = 1
-        case 'CRITICAL:':
-            exitcode = 2
+    if (breakup[0] == "WARNING:"):
+        exitcode = 1
+    elif (breakup[0] == "CRITICAL:"):
+        exitcode = 2
+    elif (breakup[0] == "UNKNOWN:"):
+        exitcode = 3
+    else:
+        exitcode = 0
 
 print(message)
 exit(exitcode)
