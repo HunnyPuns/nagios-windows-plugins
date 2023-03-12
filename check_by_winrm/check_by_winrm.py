@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import warnings
+warnings.simplefilter('ignore')
 import winrm
 import argparse
 from sys import argv
@@ -42,6 +44,11 @@ parser.add_argument( '-k',
                      required=False,
                      action='store_const',
                      const=1)
+parser.add_argument( '-v',
+                     '--verbose',
+                     required=False,
+                     action='store_const',
+                     const=1)
 
 args = parser.parse_args(argv[1:])
 
@@ -70,6 +77,16 @@ else:
     pscommand = args.plugin
 
 command = winrmsession.run_ps(pscommand)
+
+if (args.verbose is 1):
+    verboseout = f"""
+    *** Verbose Output ***
+    \033[{'31;1;4'}m Arguments \033[{'0'}m - {args.__dict__}
+    \033[{'31;1;4'}m Session \033[{'0'}m - {winrmsession.__dict__}
+    \033[{'31;1;4'}m Command \033[{'0'}m - {command.__dict__}
+    """
+
+    print(verboseout)
 
 if (command.std_out != b''):
     message = command.std_out.decode('utf-8').rstrip('\n')
