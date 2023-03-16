@@ -76,7 +76,14 @@ if (args.args is not None):
 else:
     pscommand = args.plugin
 
-command = winrmsession.run_ps(pscommand)
+try:
+    command = winrmsession.run_ps(pscommand)
+except winrm.exceptions.InvalidCredentialsError as Error:
+    print("Unable to connect to the specified Windows machine: {0}\nWinRM Error: {1}".format(args.host, Error))
+    exit()
+except Exception as Error:
+    print("Unknown error occurred connecting to the specified Windows machine: {0}\nWinRM Error: {1}".format(args.host, Error))
+    exit()
 
 if (args.verbose is 1):
     verboseout = f"""
