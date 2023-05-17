@@ -56,7 +56,14 @@ function processCheck {
 
 }
 
-$cpuusage = (Get-CimInstance -ClassName Win32_Processor -ComputerName localhost).LoadPercentage
+$cpus = (Get-CimInstance -ClassName Win32_Processor -ComputerName localhost).LoadPercentage
+$cpuusage = 0
+
+
+foreach ($cpu in $cpus) {
+    $cpuusage += $cpu
+}
+
 $message = "CPU utilization is $cpuusage"
 
 $processArray = processCheck -checkResult $cpuusage `
