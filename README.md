@@ -22,8 +22,10 @@ It strikes me that people are going to be eager to get something running over Wi
 
 But for *testing purposes*, here's how we can configure WinRM, so we can execute Nagios plugins via WinRM.
 On your Windows system, in a Powershell terminal, run the following commands:
-`winrm set winrm/config/service @{Basic="true"}`
-`winrm set winrm/config/service/auth @{Basic="true"}`
+
+`winrm set winrm/config/service '@{Basic="true"}'`
+
+`winrm set winrm/config/service/auth '@{Basic="true"}'`
 
 What have we done here? The transport is going to be basic HTTP, and the authentication is going to be plaintext. Technically it's base64 encoded, but for those not in the know, you run a password through a base64 encoder, you get the base64 string. You run a base64 string through a base64 encoder, you get the password. No tricks, no keys, no hashes, no gods, no masters. Please do not do this in production.
 
