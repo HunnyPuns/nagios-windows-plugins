@@ -81,8 +81,6 @@ function processCheck {
 
 }
 
-
-
 $totalmem = 0
 foreach ($mem in (Get-CimInstance -ClassName CIM_PhysicalMemory | select Capacity).Capacity) {
     $totalmem += $mem
@@ -91,6 +89,10 @@ foreach ($mem in (Get-CimInstance -ClassName CIM_PhysicalMemory | select Capacit
 $totalmem = [int]($totalmem / 1024) / 1024
 $memoryresult = (get-counter -counter '\Memory\Available MBytes' -computername localhost).countersamples.cookedvalue
 
+#If we're checkin' used memory, gotta change $memoryresult to reflect the used memory.
+if ($metric -eq 'Used') {
+    $memoryresult = $totalmem - $memoryresult
+}
 
 switch ($outputType) {
     'MB' {
