@@ -116,5 +116,5 @@ $processArray = processCheck -checkResult $memoryresult `
 $exitcode = $processArray[1]
 $exitMessage = $processArray[2]
 
-write-host $exitMessage
+write-output $exitMessage
 exit $exitcode
