@@ -96,9 +96,7 @@ switch ($metric) {
     }
 
     'CPU' {
-        foreach ($cpu in $procinfo.CPU) { $cputotal = $cputotal + $cpu }
-        $cputotal = [math]::Round($cputotal,2)
-        $message = "Process $processname CPU utilization is {0}" -f $cputotal
+        $cputotal = [math]::Round(((get-counter "\Process($processname)\% Processor Time" -SampleInterval 1).CounterSamples).CookedValue,2)
 
         $processArray = processCheck -checkResult $cputotal `
                         -warningThresh $warning `
